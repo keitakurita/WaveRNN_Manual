@@ -9,6 +9,7 @@ from bunch import Bunch
 from models.fatchord_version import WaveRNN
 from models.tacotron import Tacotron
 from utils.text.symbols import symbols
+from utils.text import text_to_sequence
 
 ROOT = Path(__file__).parent
 
@@ -81,6 +82,9 @@ hp = Bunch(
 
 def hparams():
     return hp
+
+def text_to_sequence_converter():
+    return text_to_sequence
 
 def fetch_and_load_state_dict(model_name: str):
     WEIGHT_PATH = ROOT / "pretrained" / model_name / "latest_weights.pyt"
