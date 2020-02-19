@@ -1,1 +1,2 @@
 *.ipynb linguist-language=Python
+*.pyt filter=lfs diff=lfs merge=lfs -text
