@@ -1,5 +1,6 @@
-dependencies = ["torch"]
+dependencies = ["torch", "requests"]
 
+import requests
 import torch
 from pathlib import Path
 
@@ -78,6 +79,16 @@ hp = Bunch(
     tts_bin_lengths = True,             # bins the spectrogram lengths before sampling in data loader - speeds up training)
 )
 
+def fetch_and_load_state_dict(model_name: str):
+    WEIGHT_PATH = ROOT / "pretrained" / model_name / "latest_weights.pyt"
+    data = requests.get(
+        f"https://github.com/keitakurita/WaveRNN_Manual/raw/master/pretrained/{model_name}/latest_weights.pyt"
+    )
+    with WEIGHT_PATH.open("wb") as f:
+        f.write(data.content)
+    state_dict = torch.load(WEIGHT_PATH)
+    return state_dict
+
 def wave_rnn(pretrained=True, **kwargs):
     model = WaveRNN(rnn_dims=hp.voc_rnn_dims,
                     fc_dims=hp.voc_fc_dims,
@@ -92,8 +103,7 @@ def wave_rnn(pretrained=True, **kwargs):
                     sample_rate=hp.sample_rate,
                     mode=hp.voc_mode)
     if pretrained:
-        state_dict = torch.load(
-                ROOT / "pretrained" / "wavernn" / "latest_weights.pyt")
+        state_dict = fetch_and_load_state_dict("wavernn")
         model.load_state_dict(state_dict)
     return model
 
@@ -113,8 +123,7 @@ def tacotron(pretrained=True, **kwargs):
                      dropout=hp.tts_dropout,
                      stop_threshold=hp.tts_stop_threshold)
     if pretrained:
-        state_dict = torch.load(
-            ROOT / "pretrained" / "tacotron" / "latest_weights.pyt")
+        state_dict = fetch_and_load_state_dict("tacotron")
         state_dict["decoder.r"] = state_dict.pop("r")
         state_dict["stop_threshold"] = torch.tensor(hp.tts_stop_threshold, dtype=torch.float32)
         model.load_state_dict(state_dict)
