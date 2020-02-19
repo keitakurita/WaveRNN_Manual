@@ -79,6 +79,9 @@ hp = Bunch(
     tts_bin_lengths = True,             # bins the spectrogram lengths before sampling in data loader - speeds up training)
 )
 
+def hparams():
+    return hp
+
 def fetch_and_load_state_dict(model_name: str):
     WEIGHT_PATH = ROOT / "pretrained" / model_name / "latest_weights.pyt"
     data = requests.get(
